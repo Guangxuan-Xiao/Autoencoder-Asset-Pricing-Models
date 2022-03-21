@@ -1,0 +1,1 @@
+python src/main.py --config config/CA.yml
