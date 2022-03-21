@@ -11,7 +11,7 @@ if __name__ == "__main__":
     config = load_config()
     print(config)
     for seed in config.seeds:
-        run = wandb.init(project="Feature-Agglomeration-in-Asset-Pricing",
+        run = wandb.init(project="Autoencoder Asset Pricing Models",
                          config=config, name=config.title, reinit=True)
         seed_all(seed)
         logger = Logger(config, seed)
