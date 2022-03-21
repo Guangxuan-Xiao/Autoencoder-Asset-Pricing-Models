@@ -10,4 +10,6 @@ conda env create --name aapm --file environments.yml
 
 ## Run
 
+```
 bash run.sh
+```
