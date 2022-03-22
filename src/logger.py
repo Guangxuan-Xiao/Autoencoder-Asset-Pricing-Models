@@ -2,6 +2,7 @@ import wandb
 import os.path as osp
 import os
 import yaml
+import json
 
 
 class Logger:
@@ -23,6 +24,7 @@ class Logger:
 
     def write_final(self, stat):
         with open(osp.join(self.log_dir, 'final.json'), 'a') as f:
-            f.write('{}\n'.format(stat))
+            print(file=f)
+            json.dump(stat, f)
         print(stat)
         wandb.log(stat)

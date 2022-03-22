@@ -7,22 +7,29 @@ class Dataset(torch.utils.data.Dataset):
     def __init__(self, path, split='train'):
         super().__init__()
         self.features = np.load(
-            osp.join(path, '{}_features.npy'.format(split))).astype(np.float32)
+            osp.join(path, '{}_features.npy'.format(split)), allow_pickle=True)
         self.fret = np.load(
-            osp.join(path, '{}_fret.npy'.format(split))).astype(np.float32)
+            osp.join(path, '{}_fret.npy'.format(split)), allow_pickle=True)
 
     def __len__(self):
-        return self.fret.shape[1]
+        return len(self.fret)
 
     def __getitem__(self, index):
-        return self.features[:, index, :], self.fret[:, index]
+        return self.features[index], self.fret[index]
+
+
+def collate_fn(batch):
+    features, fret = zip(*batch)
+    features = [torch.from_numpy(f) for f in features]
+    fret = [torch.from_numpy(f) for f in fret]
+    return features, fret
 
 
 def create_loader(config, split):
     dataset = Dataset(config.data.path, split)
     shuffle = split == 'train'
     loader = torch.utils.data.DataLoader(dataset, batch_size=config.train.batch_size,
-                                         shuffle=shuffle, num_workers=config.data.num_workers, drop_last=config.train.drop_last)
+                                         shuffle=shuffle, num_workers=config.data.num_workers, drop_last=config.train.drop_last, collate_fn=collate_fn)
     return loader
 
 

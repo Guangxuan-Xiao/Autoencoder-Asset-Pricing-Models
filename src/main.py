@@ -6,6 +6,8 @@ from evaluator import create_evaluator
 from data import create_loaders
 from trainer import Trainer
 from logger import Logger
+from agg_results import agg_results
+import os.path as osp
 
 if __name__ == "__main__":
     config = load_config()
@@ -26,3 +28,4 @@ if __name__ == "__main__":
                           evaluator, device, logger, config)
         trainer.train()
         run.finish()
+    agg_res = agg_results(osp.join(config.log_dir, config.title))
