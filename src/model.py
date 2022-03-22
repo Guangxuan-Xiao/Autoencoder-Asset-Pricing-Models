@@ -48,29 +48,36 @@ class MLP(torch.nn.Module):
 
 
 class ConditionalAutoencoder(torch.nn.Module):
-    def __init__(self, in_channels, hidden_channels, out_channels, dropout, loss_fn):
+    def __init__(self, in_channels, hidden_channels, dropout, loss_fn):
         super(ConditionalAutoencoder, self).__init__()
         self.beta = MLP(
             in_channels, hidden_channels[:-1], hidden_channels[-1], dropout, return_dict=False)
-        self.factor = torch.nn.Linear(out_channels, hidden_channels[-1])
+        self.factor = torch.nn.Linear(in_channels, hidden_channels[-1])
         self.loss_fn = loss_fn
 
     def reset_parameters(self):
         self.beta.reset_parameters()
         self.factor.reset_parameters()
 
-    def forward(self, x, y_true):
-        B, N, P = x.shape
-        beta = self.beta(x.view(-1, P))
-        factor = self.factor(y_true)
-        beta = beta.view(B, N, -1)
-        y_pred = torch.bmm(beta, factor.unsqueeze(2)).squeeze(2)
-        return {"loss": self.loss_fn(y_pred, y_true), "y_pred": y_pred}
+    def forward(self, xs, y_trues):
+        num_batches, loss = 0, 0
+        r_preds = []
+        for z, r_true in zip(xs, y_trues):
+            r_true.unsqueeze_(1)
+            # z: (N, P), r_true: (N,)
+            beta = self.beta(z)  # beta: (N, K)
+            x = torch.inverse(z.T @ z) @ z.T @ r_true  # x: (K,1)
+            factor = self.factor(x.view(1, -1))  # factor: (1, K)
+            r_pred = beta @ factor.view(-1, 1)  # r_pred: (N, 1)
+            loss += self.loss_fn(r_pred, r_true)
+            r_preds.append(r_pred)
+            num_batches += 1
+        return {"loss": loss / num_batches, "y_preds": r_preds}
 
     @classmethod
     def from_config(cls, config):
         loss_fn = create_loss_fn(config)
-        return cls(config.model.in_channels, config.model.hidden_channels, config.model.out_channels, config.model.dropout, loss_fn)
+        return cls(config.model.in_channels, config.model.hidden_channels, config.model.dropout, loss_fn)
 
 
 model_dict = {
