@@ -1,4 +1,4 @@
-name: finance
+name: aapm
 channels:
   - defaults
 dependencies:
@@ -135,4 +135,3 @@ dependencies:
     - webencodings==0.5.1
     - widgetsnbextension==3.6.0
     - yaspin==2.1.0
-prefix: /home/xgx/anaconda3/envs/finance
