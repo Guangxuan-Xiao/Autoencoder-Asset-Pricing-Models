@@ -1,8 +1,8 @@
-title: Conditional-Autoencoder
-log_dir: ./log
-seeds: [233]
+title: CA3
+log_dir: log
+seeds: [233, 42, 1135]
 data:
-  path: ./data
+  path: data
   num_workers: 4
 model: 
   name: ConditionalAutoencoder
@@ -14,10 +14,10 @@ model:
   loss_fn: MSELoss
 optimizer:
   name: Adam
-  lr: 0.001
+  lr: 0.005
   scheduler: cos
 train:
-  batch_size: 32
-  num_epochs: 50
+  batch_size: 16
+  num_epochs: 500
   drop_last: False
 evaluator: r2_total

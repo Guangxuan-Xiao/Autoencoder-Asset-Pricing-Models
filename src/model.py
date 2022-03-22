@@ -1,30 +1,6 @@
-import torch  # Essential!
+import torch
 import torch.nn.functional as F
 from utils import create_loss_fn
-
-
-class Linear(torch.nn.Module):
-    def __init__(self, in_channels, out_channels, loss_fn=None, return_dict=True):
-        super(Linear, self).__init__()
-        self.linear = torch.nn.Linear(in_channels, out_channels)
-        self.loss_fn = loss_fn
-        self.return_dict = return_dict
-
-    def reset_parameters(self):
-        self.linear.reset_parameters()
-
-    def forward(self, x, y_true=None):
-        x = self.linear(x)
-        if self.loss_fn is not None and self.return_dict and y_true is not None:
-            x = x.flatten()
-            return {"loss": self.loss_fn(x, y_true), "y_pred": x}
-        else:
-            return x
-
-    @classmethod
-    def from_config(cls, config):
-        loss_fn = create_loss_fn(config)
-        return cls(config.model.in_channels, config.model.out_channels, loss_fn)
 
 
 class MLP(torch.nn.Module):
@@ -98,8 +74,6 @@ class ConditionalAutoencoder(torch.nn.Module):
 
 
 model_dict = {
-    'MLP': MLP,
-    'Linear': Linear,
     'ConditionalAutoencoder': ConditionalAutoencoder,
 }
 
